@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Deepfake Detection & Digital Content Authenticity Verification Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#070709;--bg2:#0e0e12;--card:#131318;--line:#2a2620;--gold:#d4af6a;--gold2:#f3dca6;--tx:#ece6d8;--mut:#9a9486;--ok:#5fcf9a;--bad:#ef6a6a;--warn:#e8b64c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;margin:0}html{scroll-behavior:smooth;scroll-padding-top:70px}
+body{background:var(--bg);color:var(--tx);font:300 16px/1.75 Manrope,system-ui,sans-serif;overflow-x:hidden}
+h1,h2,h3{font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;letter-spacing:.005em;line-height:1.1}
+.gold{background:linear-gradient(110deg,#a8803c,var(--gold2),#a8803c,var(--gold2));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sh 6s linear infinite;font-style:italic}
+@keyframes sh{to{background-position:300% 0}}
+#bar{position:fixed;top:0;left:0;height:2px;width:0;background:var(--gold);z-index:99}
+#glow{position:fixed;width:420px;height:420px;border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(212,175,106,.11),transparent 65%);transform:translate(-50%,-50%);z-index:0;left:-999px}
+nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:14px 5vw;padding-top:calc(14px + env(safe-area-inset-top,0px));background:rgba(7,7,9,.7);backdrop-filter:blur(14px);border-bottom:1px solid #ffffff0d}
+nav b{font:500 17px Cinzel,serif;letter-spacing:.2em;color:var(--gold)}
+nav div{display:flex;gap:22px;overflow-x:auto}nav a{font-family:Cinzel,serif;color:var(--mut);text-decoration:none;font-size:12px;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;transition:.3s}nav a:hover,nav a.on{color:var(--gold)}
+section{position:relative;z-index:1;padding:110px 6vw;max-width:1200px;margin:auto}
+.eyebrow{font-family:Cinzel,serif;color:var(--gold);letter-spacing:.34em;font-size:12px;text-transform:uppercase;margin-bottom:14px}
+h2{font-size:clamp(34px,5vw,54px);margin-bottom:18px}
+.lead{color:var(--mut);max-width:720px}
+#hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;max-width:none;padding-top:130px}
+#hero>*:not(canvas){position:relative;z-index:2;max-width:1000px}
+#cv{position:absolute;inset:0;width:100%;height:100%}
+#hero h1{font-size:clamp(40px,7vw,88px);margin:14px 0 22px}
+.meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}
+.chip{border:1px solid var(--line);padding:6px 16px;border-radius:99px;font-size:13px;color:var(--mut);background:#0c0c10;transition:.3s}.chip:hover{border-color:var(--gold);color:var(--gold)}
+.btn{display:inline-block;margin-top:34px;padding:15px 36px;border:1px solid var(--gold);color:var(--gold);text-decoration:none;letter-spacing:.14em;font-size:13px;text-transform:uppercase;position:relative;overflow:hidden;transition:.4s;background:none;cursor:pointer;font-family:inherit}
+.btn:hover{background:var(--gold);color:#000;box-shadow:0 0 40px rgba(212,175,106,.35)}
+.rv{opacity:0;transform:translateY(46px);transition:opacity 1s cubic-bezier(.2,.7,.2,1),transform 1s cubic-bezier(.2,.7,.2,1)}.rv.in{opacity:1;transform:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px;margin-top:44px}
+.card{background:linear-gradient(160deg,var(--card),#0a0a0d);border:1px solid var(--line);border-radius:16px;padding:28px;transition:border-color .4s,transform .25s ease-out,box-shadow .4s;transform-style:preserve-3d}
+.card:hover{border-color:var(--gold);box-shadow:0 20px 60px -20px rgba(212,175,106,.3)}
+.card h3{font-size:26px;color:var(--gold2);margin:10px 0 6px}.card p{font-size:14px;color:var(--mut)}.card .ic{font-size:30px}
+.card small{color:var(--gold);letter-spacing:.12em;font-size:11px;text-transform:uppercase}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:18px;margin-top:40px}
+.stat{text-align:center;padding:26px;border-top:1px solid var(--gold)}.stat b{display:block;font:600 56px 'Cormorant Garamond',serif;color:var(--gold2)}.stat span{font-size:13px;color:var(--mut)}
+/* demo */
+.demo{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:44px}@media(max-width:860px){.demo{grid-template-columns:1fr}}
+.drop{border:1.5px dashed #5a4a2c;border-radius:18px;min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;cursor:pointer;transition:.4s;position:relative;overflow:hidden;background:#0b0b0e}
+.drop:hover,.drop.dg{border-color:var(--gold);background:#100f0b}.drop img{max-width:100%;max-height:300px;border-radius:10px;display:none}
+.scan{position:absolute;left:0;right:0;height:3px;background:var(--gold);box-shadow:0 0 24px var(--gold);top:0;display:none;animation:sc 1.6s ease-in-out infinite}@keyframes sc{50%{top:100%}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px;min-height:300px}
+#log div{font:12.5px/2 ui-monospace,Menlo,monospace;color:var(--mut);opacity:0;transform:translateX(-14px);animation:li .5s forwards}@keyframes li{to{opacity:1;transform:none}}#log i{color:var(--ok);font-style:normal}
+#res{display:none;margin-top:26px}
+.verdict{display:flex;gap:30px;align-items:center;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:30px}
+.ring{position:relative;width:150px;height:150px}.ring svg{transform:rotate(-90deg)}.ring circle{fill:none;stroke-width:9}.ring .t{stroke:#23211b}.ring .v{stroke-linecap:round;transition:stroke-dashoffset 1.6s cubic-bezier(.2,.7,.2,1),stroke .5s}.ring b{position:absolute;inset:0;display:grid;place-items:center;font:600 34px 'Cormorant Garamond',serif}
+.vt h3{font-size:clamp(28px,4vw,42px)}.vt p{color:var(--mut);font-size:14px;max-width:520px}
+.ev{display:none}.ev div{display:grid;grid-template-columns:150px 1fr 50px;gap:12px;align-items:center;font-size:13px;color:var(--mut)}.ev u{display:block;height:6px;background:#23211b;border-radius:9px;overflow:hidden;text-decoration:none}.ev u i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ok),var(--warn),var(--bad));background-size:300px 100%;transition:width 1.4s cubic-bezier(.2,.7,.2,1)}
+.code{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px}@media(max-width:760px){.code{grid-template-columns:1fr}}
+pre{background:#08080a;border:1px solid var(--line);border-radius:12px;padding:16px;font:12px/1.7 ui-monospace,Menlo,monospace;color:#cfc7b3;overflow-x:auto}pre em{color:var(--gold);font-style:normal}
+.note{font-size:12.5px;color:var(--mut);margin-top:16px;border-left:2px solid var(--gold);padding-left:14px}
+input[type=text]{width:100%;background:#08080a;border:1px solid var(--line);border-radius:8px;padding:9px 12px;color:var(--tx);font:12px ui-monospace,monospace;margin-top:12px}
+/* flow */
+.flow{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;justify-content:center;margin-top:44px}
+.node{flex:1 1 150px;max-width:210px;text-align:center;border:1px solid var(--line);border-radius:14px;padding:22px 12px;background:var(--card);position:relative;transition:.4s}.node:hover{border-color:var(--gold);transform:translateY(-6px)}
+.node b{display:block;color:var(--gold2);font:600 20px 'Cormorant Garamond',serif}.node span{font-size:12px;color:var(--mut)}
+.node::after{content:'→';position:absolute;right:-17px;top:50%;color:var(--gold);animation:nx 1.6s infinite}@media(max-width:760px){.node::after{display:none}}.node:last-child::after{display:none}@keyframes nx{50%{transform:translateX(5px)}}
+.gap{border-left:2px solid var(--gold);padding:4px 0 4px 22px;margin:22px 0}.gap h3{font-size:24px;color:var(--gold2)}.gap p{font-size:14px;color:var(--mut)}
+.team .card{text-align:center}.av{width:64px;height:64px;border-radius:50%;margin:0 auto 12px;display:grid;place-items:center;font:600 26px 'Cormorant Garamond',serif;color:#000;background:linear-gradient(135deg,#a8803c,var(--gold2))}
+footer{position:relative;z-index:1;text-align:center;padding:50px 20px calc(50px + env(safe-area-inset-bottom,0px));color:var(--mut);font-size:13px;border-top:1px solid var(--line)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
+
+#intro{position:fixed;inset:0;z-index:200;background:#050507;display:grid;place-items:center;pointer-events:none;animation:out 1s 1.5s forwards}#intro b{font:500 clamp(18px,3vw,30px) Cinzel,serif;letter-spacing:.5em;color:var(--gold);animation:ii 1.4s forwards}#intro i{position:absolute;bottom:42%;height:1px;background:var(--gold);width:0;animation:ln 1.4s forwards}
+@keyframes out{to{opacity:0;visibility:hidden}}@keyframes ii{0%{opacity:0;letter-spacing:.1em}60%{opacity:1}100%{letter-spacing:.5em;opacity:1}}@keyframes ln{to{width:min(320px,60vw)}}
+.w{display:inline-block;opacity:0;transform:translateY(46px) rotateX(-50deg);animation:wi 1s calc(1.5s + var(--i)*80ms) cubic-bezier(.2,.7,.2,1) forwards}.w.gold{animation:wi 1s calc(1.5s + var(--i)*80ms) cubic-bezier(.2,.7,.2,1) forwards,sh 6s linear infinite}@keyframes wi{to{opacity:1;transform:none}}
+.orb{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0;opacity:.16;background:#d4af6a}
+.tick{overflow:hidden;border-block:1px solid var(--line);padding:16px 0;position:relative;z-index:1;background:#0a0a0d}.tick div{display:flex;gap:46px;width:max-content;animation:mq 32s linear infinite;font:500 13px Cinzel,serif;letter-spacing:.28em;color:var(--mut);text-transform:uppercase}.tick span::after{content:'◆';color:var(--gold);margin-left:46px;font-size:8px}@keyframes mq{to{transform:translateX(-50%)}}
+.sec::before{content:'';position:absolute;top:0;left:6vw;right:6vw;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);transform:scaleX(0);transition:transform 1.8s cubic-bezier(.2,.7,.2,1)}.sec.in::before{transform:scaleX(1)}
+.rv{filter:blur(8px);transition:opacity 1s cubic-bezier(.2,.7,.2,1),transform 1s cubic-bezier(.2,.7,.2,1),filter 1s}.rv.in{filter:none}
+.tabs{display:inline-flex;border:1px solid var(--line);border-radius:99px;padding:5px;margin-top:30px;background:#0b0b0e;position:relative}.tab{font:500 12px Cinzel,serif;letter-spacing:.2em;text-transform:uppercase;padding:11px 30px;border-radius:99px;border:0;background:none;color:var(--mut);cursor:pointer;position:relative;z-index:1;transition:color .4s}.tab.on{color:#000}.pill{position:absolute;top:5px;bottom:5px;left:5px;width:calc(33.333% - 3.4px);border-radius:99px;background:linear-gradient(135deg,#a8803c,var(--gold2));transition:transform .5s cubic-bezier(.7,0,.2,1)}
+.drop video{max-width:100%;max-height:300px;border-radius:10px;display:none}
+.lab{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.lab span{padding:7px 16px;border-radius:99px;font-size:12.5px;border:1px solid var(--line)}
+.meter{height:10px;border-radius:9px;background:#23211b;overflow:hidden;display:flex;margin-top:18px;width:100%}.meter i{display:block;height:100%;width:0;transition:width 1.6s cubic-bezier(.2,.7,.2,1)}
+#why{list-style:none;margin-top:26px;display:grid;gap:10px}#why li{padding:14px 18px;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;background:var(--card);font-size:14px;color:#cfc7b3;opacity:0;transform:translateX(-24px);animation:li .7s forwards}#why b{color:var(--gold2);font-weight:500}
+.tbl{overflow-x:auto;margin-top:26px;border:1px solid var(--line);border-radius:14px}.tr{display:grid;grid-template-columns:1.25fr 1.15fr 1.7fr 1.1fr 46px;gap:14px;align-items:center;padding:13px 18px;min-width:760px;border-bottom:1px solid #1d1b17;font-size:12.5px;color:var(--mut)}.tr:last-child{border:0}.tr.h{font:500 11px Cinzel,serif;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;background:#0c0c10}.tr code{font:12px ui-monospace,Menlo,monospace;color:var(--gold2)}.tr u{display:block;height:6px;background:#23211b;border-radius:9px;overflow:hidden}.tr u i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ok),var(--warn),var(--bad));background-size:160px 100%;transition:width 1.4s cubic-bezier(.2,.7,.2,1)}.tr b{color:var(--tx);font-weight:500}
+#strip{display:none;gap:10px;margin-top:26px;overflow-x:auto}#strip div{flex:0 0 120px;text-align:center;font-size:11px;color:var(--mut);opacity:0;transform:scale(.8);animation:li .6s forwards}#strip img{width:120px;border-radius:8px;border:1px solid var(--line);display:block;margin-bottom:6px}
+.btn{will-change:transform}
+</style></head><body>
+<div id="bar"></div><div id="glow"></div>
+<nav><b>DEEPFAKE ANALYSIS</b><div><a href="#about">Problem</a><a href="#demo">Live Demo</a><a href="#flow">Methodology</a><a href="#arch">Architecture</a><a href="#lit">Literature</a></div></nav>
+
+<div id="intro"><i></i><b>DEEPFAKE ANALYSIS</b></div><div class="orb" id="o1" style="width:420px;height:420px;top:10vh;right:-120px"></div><div class="orb" id="o2" style="width:340px;height:340px;top:70vh;left:-120px"></div>
+<section id="hero"><canvas id="cv"></canvas>
+<div class="eyebrow rv">Design Project – 1 · E1CSA313 / E1ITA306</div>
+<h1 class="rv"><span class="gold">Deepfake Detection</span> &amp; Digital Content Authenticity Verification Platform</h1>
+<p class="lead rv">One unified workflow to verify whether an image, video, audio clip, text or link is genuine or AI-generated — with confidence scores and explainable evidence.</p>
+<div class="meta rv"><span class="chip">Image</span><span class="chip">Video</span><span class="chip">Audio</span><span class="chip">Text</span><span class="chip">URL</span></div>
+<div class="rv"><a class="btn" href="#demo">Try Image Verification</a></div></section>
+
+<div class="tick"><div><span>EfficientNet</span><span>Xception</span><span>RawNet2</span><span>RoBERTa</span><span>URLNet</span><span>FastAPI</span><span>PyTorch</span><span>OpenCV</span><span>PostgreSQL</span><span>Next.js</span><span>Docker</span><span>EfficientNet</span><span>Xception</span><span>RawNet2</span><span>RoBERTa</span><span>URLNet</span><span>FastAPI</span><span>PyTorch</span><span>OpenCV</span><span>PostgreSQL</span><span>Next.js</span><span>Docker</span></div></div>
+<section class="sec" id="about"><div class="eyebrow rv">The Problem</div><h2 class="rv">People can’t tell <span class="gold">real</span> from <span class="gold">synthetic</span>.</h2>
+<p class="lead rv">AI generation and manipulation can now create or alter images, videos, audio, text and URLs. Most detectors are modality-specific and return only a bare real/fake label, without evidence a user can trust.</p>
+<div class="stats"><div class="stat rv"><b data-n="5">0</b><span>Evidence types, one workflow</span></div><div class="stat rv"><b data-n="10">0</b><span>Research papers reviewed</span></div><div class="stat rv"><b data-n="49.88" data-d="2">0</b><span>% cross-data accuracy drop reported in the literature [2]</span></div></div>
+<div class="gap rv"><h3>Gap 1 · Modality-specific systems</h3><p>Existing work is video-only or audio-visual-only; none unifies image, video, audio, text and URL.</p></div>
+<div class="gap rv"><h3>Gap 2 · Weak generalization</h3><p>High same-dataset scores do not guarantee real-world performance (83.92% in-data vs 49.88% cross-data).</p></div>
+<div class="gap rv"><h3>Gap 3 · Inconsistent metrics</h3><p>Mismatched F1 values, missing ROC-AUC and single-benchmark testing make detectors hard to compare.</p></div></section>
+
+<section class="sec" id="demo"><div class="eyebrow rv">Live Demo</div><h2 class="rv">Image, Video &amp; Audio <span class="gold">Authenticity</span> Check</h2>
+<p class="lead rv">Upload an image, video or audio clip. Pretrained neural detectors plus metadata forensics run on the backend, then the platform answers clearly: <b>Authentic</b> or <b>AI-generated</b> — with how much AI was found, every criterion used, the function behind it, and the reason.</p>
+<div class="tabs rv"><span class="pill" id="pill"></span><button class="tab on" data-m="image">Image</button><button class="tab" data-m="video">Video</button><button class="tab" data-m="audio">Audio</button></div>
+<div class="demo rv">
+<label class="drop" id="drop"><input type="file" id="file" accept="image/*" hidden><div class="scan" id="scan"></div><img id="prev"><video id="pv" muted loop playsinline controls></video><div id="dh"><div style="font-size:42px;color:var(--gold)">⬆</div><p id="dt">Drop an image here or click to upload</p><small style="color:var(--mut)" id="ds">JPG · PNG · WEBP — processed locally, never uploaded</small></div></label>
+<div class="panel"><div class="eyebrow">Processing pipeline</div><div id="log"><div>Waiting for input…</div></div>
+<p style="font-size:12px;color:var(--mut);margin-top:12px">Models: Swin / ViT image detectors · wav2vec2 audio detectors · OpenCV frame sampling</p></div></div>
+<div id="res"><div class="verdict"><div class="ring"><svg width="150" height="150"><circle class="t" cx="75" cy="75" r="66"/><circle class="v" id="rv" cx="75" cy="75" r="66" stroke-dasharray="415" stroke-dashoffset="415"/></svg><b id="rn">0%</b></div>
+<div class="vt" style="flex:1;min-width:260px"><div class="eyebrow" id="rl">AI likelihood</div><h3 id="rt"></h3><p id="rd"></p><div class="lab" id="lab"></div><div class="meter"><i id="m1" style="background:var(--ok)"></i><i id="m2" style="background:var(--bad)"></i></div></div></div>
+<div class="eyebrow" style="margin-top:34px">Why this verdict</div><ul id="why"></ul>
+<div id="strip"></div>
+<div class="eyebrow" style="margin-top:34px">Criteria &amp; functions used</div><div class="tbl" id="tbl"></div>
+<div class="code"><div><div class="eyebrow" style="margin-top:20px">Frontend → request</div><pre id="fe"></pre></div><div><div class="eyebrow" style="margin-top:20px">Backend → response</div><pre id="be"></pre></div></div>
+<p class="note" id="nt"></p></div></section>
+
+<section class="sec" id="flow"><div class="eyebrow rv">Methodology</div><h2 class="rv">Route each input to the <span class="gold">right model</span>.</h2>
+<div class="flow"><div class="node rv"><b>Upload</b><span>Image · Video · Audio · Text · URL</span></div><div class="node rv"><b>Input Router</b><span>Detects content type</span></div><div class="node rv"><b>Preprocess</b><span>Type-specific pipeline</span></div><div class="node rv"><b>Analysis</b><span>Prediction + confidence + indicators</span></div><div class="node rv"><b>Result</b><span>Explainable authenticity report</span></div></div>
+<div class="grid"><div class="card rv"><div class="ic">🖼</div><h3>Image</h3><small>EfficientNet-style CNN</small><p>Resize, normalise, face regions.</p></div><div class="card rv"><div class="ic">🎞</div><h3>Video</h3><small>Xception features</small><p>Frame sampling + face extraction.</p></div><div class="card rv"><div class="ic">🎧</div><h3>Audio</h3><small>RawNet2 / wav2vec</small><p>Audio feature extraction.</p></div><div class="card rv"><div class="ic">✍</div><h3>Text</h3><small>RoBERTa classifier</small><p>Tokenisation of text.</p></div><div class="card rv"><div class="ic">🔗</div><h3>URL</h3><small>URLNet-style CNN</small><p>Character / word representation.</p></div></div></section>
+
+<section class="sec" id="arch"><div class="eyebrow rv">System Architecture</div><h2 class="rv">Frontend to <span class="gold">database</span>.</h2>
+<div class="flow"><div class="node rv"><b>Frontend</b><span>Next.js · React · TypeScript</span></div><div class="node rv"><b>Backend API</b><span>FastAPI + Uvicorn</span></div><div class="node rv"><b>ML / DL Modules</b><span>PyTorch · OpenCV · librosa · NLP</span></div><div class="node rv"><b>Result Generator</b><span>Score + indicators</span></div><div class="node rv"><b>Database</b><span>PostgreSQL + Alembic</span></div></div>
+<p class="lead rv" style="margin:36px auto 0;text-align:center">Development &amp; deployment: Git / GitHub · Docker · Python 3.11.x</p>
+<div class="grid"><div class="card rv"><small>Hardware</small><p style="margin-top:10px">Core i5 / Ryzen 5+ · 8 GB RAM (16 GB recommended) · 256 GB SSD · NVIDIA GPU recommended</p></div><div class="card rv"><small>Novelty</small><p style="margin-top:10px">Multimodal analysis, one combined risk score and explainable reasons in a single platform.</p></div></div></section>
+
+<section class="sec" id="lit"><div class="eyebrow rv">Review of Literature</div><h2 class="rv">Built on <span class="gold">recent research</span>.</h2>
+<div class="grid"><div class="card rv"><small>2026 · Machine Vision &amp; Applications</small><h3>Petmezas</h3><p>Cross-dataset video deepfake detection with Transformer and CNN architectures.</p></div><div class="card rv"><small>2025 · AI Review</small><h3>Al Redhaei et al.</h3><p>Self-supervised BEiT with Hierarchical PatchReducer.</p></div><div class="card rv"><small>2025 · SIViP</small><h3>Javed et al.</h3><p>Local–global feature fusion with diffusion models for audio-visual detection.</p></div><div class="card rv"><small>2026 · IEEE TCE</small><h3>Husnain et al.</h3><p>ViT-Xplain: transparent, attention-based explainable detection.</p></div><div class="card rv"><small>2025 · CVPR</small><h3>Yan et al.</h3><p>Video-level blending and spatiotemporal adapter tuning.</p></div><div class="card rv"><small>2025 · COLING / EMNLP</small><h3>AIDER · SenDetEX</h3><p>Robust and sentence-level AI-generated text detection.</p></div></div></section>
+
+<footer>Design Project – 1 · E1CSA313 / E1ITA306 · Deepfake Detection &amp; Digital Content Authenticity Verification</footer>
+
+<script>
+const $=s=>document.querySelector(s),sleep=ms=>new Promise(r=>setTimeout(r,ms));
+// reveal, counters, progress, glow, tilt
+const io=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);const n=x.target.querySelector('[data-n]');if(n)cnt(n)}}),{threshold:.15});
+document.querySelectorAll('.rv').forEach((e,i)=>{e.style.transitionDelay=(i%5)*70+'ms';io.observe(e)});
+function cnt(n){const t=+n.dataset.n,d=+(n.dataset.d||0),s=performance.now();(function f(now){const p=Math.min((now-s)/1600,1);n.textContent=(t*(1-Math.pow(1-p,3))).toFixed(d);if(p<1)requestAnimationFrame(f)})(s)}
+addEventListener('scroll',()=>{$('#bar').style.width=scrollY/(document.body.scrollHeight-innerHeight)*100+'%'});
+addEventListener('mousemove',e=>{const g=$('#glow');g.style.left=e.clientX+'px';g.style.top=e.clientY+'px'});
+document.querySelectorAll('.card').forEach(c=>{c.addEventListener('mousemove',e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.transform=`perspective(700px) rotateY(${x*10}deg) rotateX(${-y*10}deg) translateY(-4px)`});c.addEventListener('mouseleave',()=>c.style.transform='')});
+// hero particles
+(()=>{const c=$('#cv'),x=c.getContext('2d');let W,H,P=[],m={x:-999,y:-999};const rs=()=>{W=c.width=c.offsetWidth;H=c.height=c.offsetHeight;P=Array.from({length:Math.min(90,W/14)},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4}))};rs();addEventListener('resize',rs);addEventListener('mousemove',e=>{const r=c.getBoundingClientRect();m={x:e.clientX-r.left,y:e.clientY-r.top}});
+(function f(){x.clearRect(0,0,W,H);P.forEach((p,i)=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;const dx=p.x-m.x,dy=p.y-m.y,d=Math.hypot(dx,dy);if(d<120){p.x+=dx/d*1.5;p.y+=dy/d*1.5}x.fillStyle='rgba(212,175,106,.7)';x.beginPath();x.arc(p.x,p.y,1.6,0,7);x.fill();for(let j=i+1;j<P.length;j++){const q=P[j],l=Math.hypot(p.x-q.x,p.y-q.y);if(l<130){x.strokeStyle=`rgba(212,175,106,${.18*(1-l/130)})`;x.beginPath();x.moveTo(p.x,p.y);x.lineTo(q.x,q.y);x.stroke()}}});requestAnimationFrame(f)})()})();
+// ---------- verification (calls the FastAPI model backend) ----------
+let mode='image';const fi=$('#file'),dz=$('#drop'),MODES=['image','video','audio'];
+const HINT={image:['an image','JPG · PNG · WEBP'],video:['a video','MP4 · MOV · WEBM'],audio:['an audio clip','WAV · MP3 · M4A · FLAC']};
+function setMode(m){mode=m;document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.m==m));$('#pill').style.transform=`translateX(${MODES.indexOf(m)*100}%)`;fi.accept=m+'/*';$('#dt').textContent=`Drop ${HINT[m][0]} here or click to upload`;$('#ds').textContent=HINT[m][1]+' — analysed by the model backend'}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>setMode(t.dataset.m));
+fi.onchange=()=>fi.files[0]&&run(fi.files[0]);
+['dragover','dragenter'].forEach(v=>dz.addEventListener(v,e=>{e.preventDefault();dz.classList.add('dg')}));
+['dragleave','drop'].forEach(v=>dz.addEventListener(v,e=>{e.preventDefault();dz.classList.remove('dg')}));
+dz.addEventListener('drop',e=>e.dataTransfer.files[0]&&run(e.dataTransfer.files[0]));
+function log(t,bad){const d=document.createElement('div');d.innerHTML=(bad?'<i style="color:var(--bad)">✗</i> ':'<i>✓</i> ')+t;$('#log').appendChild(d);d.scrollIntoView({block:'nearest'})}
+const st=async(t,ms=450)=>{log(t);await sleep(ms)};
+async function getStatus(){try{const r=await fetch('/api/status');return r.ok?await r.json():null}catch(e){return null}}
+async function run(f){
+ const kind=f.type.startsWith('video')?'video':f.type.startsWith('audio')?'audio':'image';if(kind!=mode)setMode(kind);
+ const url=URL.createObjectURL(f),im=$('#prev'),pv=$('#pv');im.style.display=pv.style.display='none';$('#dh').style.display='none';
+ if(kind=='image'){im.src=url;im.style.display='block'}else{pv.src=url;pv.style.display='block';pv.play().catch(()=>{})}
+ $('#scan').style.display='block';$('#res').style.display='none';$('#log').innerHTML='';
+ await st(`<b>Frontend</b>: file received — ${f.name} (${(f.size/1048576).toFixed(2)} MB, ${f.type||'unknown'})`);
+ await st(`<b>Frontend</b>: packaged as multipart FormData → POST /api/analyze/${kind}`);
+ let r;try{
+  const grp=kind=='audio'?'audio':'image';let S=await getStatus();if(!S)throw new Error('NOBACKEND');
+  if(!S[grp].ready&&!S[grp].failed_all){const d=document.createElement('div');d.innerHTML='<i>…</i> <b>Backend</b>: loading models';$('#log').appendChild(d);
+   while(!S[grp].ready&&!S[grp].failed_all){const g=S[grp];d.innerHTML=`<i>…</i> <b>Backend</b>: loading models ${g.done}/${g.total} ${g.loading?'('+g.loading.split('/').pop()+')':''} — first run downloads ~1 GB, please wait`;await sleep(2000);S=await getStatus();if(!S)throw new Error('NOBACKEND')}
+   d.innerHTML='<i>✓</i> <b>Backend</b>: models loaded'}
+  if(S[grp].failed_all)throw new Error('No model could be loaded — '+S[grp].errors.join(' | ')+'. Check internet once, then restart run.bat (or run: python check.py)');
+  const fd=new FormData();fd.append('file',f);const res=await fetch('/api/analyze/'+kind,{method:'POST',body:fd});if(!res.ok){let m='HTTP '+res.status;try{m=(await res.json()).detail||m}catch(e){}throw new Error(m)}r=await res.json()}
+ catch(e){$('#scan').style.display='none';log(e.message=='NOBACKEND'?'<b>Backend</b>: not reachable. Start it with <b>run.bat</b> (Windows) or <b>./run.sh</b>, wait for “[models] all done”, then open <b>http://localhost:8000</b> (not this preview page)':'<b>Backend error</b>: '+e.message,1);return}
+ for(const s of r.steps)await st('<b>Backend</b>: '+s,380);
+ $('#scan').style.display='none';show(kind,r,f)}
+function show(kind,R,f){
+ const p=Math.round(R.ai_probability*100),isAI=R.label=='ai_generated',L=R.criteria,col=isAI?'var(--bad)':'var(--ok)',nm={image:'Image',video:'Video',audio:'Audio'}[kind];
+ $('#res').style.display='block';$('#rt').textContent=isAI?`AI-Generated ${nm}`:`Authentic · Real ${nm}`;$('#rt').style.color=col;
+ $('#rd').textContent=isAI?`About ${p}% of the evidence points to AI generation.`:`Only ${p}% of the evidence points to AI — this looks like a genuine, human-made ${kind}.`;
+ $('#lab').innerHTML=`<span style="color:var(--ok);border-color:var(--ok)">Authentic ${100-p}%</span><span style="color:var(--bad);border-color:var(--bad)">AI-generated ${p}%</span><span>Confidence: ${R.level}</span>`;
+ const r=$('#rv');r.style.stroke=col;r.style.strokeDashoffset=415;$('#m1').style.width=$('#m2').style.width='0';
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{r.style.strokeDashoffset=415*(1-p/100);$('#m1').style.width=(100-p)+'%';$('#m2').style.width=p+'%'}));
+ const t0=performance.now();(function g(t){const k=Math.min((t-t0)/1600,1);$('#rn').textContent=Math.round(p*k)+'%';if(k<1)requestAnimationFrame(g)})(t0);
+ const rs=L.filter(c=>c.ai&&(isAI?c.s>=60:c.s<=40)).sort((a,b)=>isAI?b.s-a.s:a.s-b.s).slice(0,5);
+ $('#why').innerHTML=(rs.length?rs:L.filter(c=>c.ai).slice(0,2)).map((c,i)=>`<li style="animation-delay:${i*180+300}ms"><b>${c.k}:</b> ${isAI?c.ai:c.re}</li>`).join('');
+ const sg=$('#strip');if(R.frames){sg.style.display='flex';sg.innerHTML=R.frames.map((o,i)=>`<div style="animation-delay:${i*150}ms"><img src="${o.t}"><span>${o.at}s · AI ${Math.round(o.p*100)}%</span></div>`).join('')}else sg.style.display='none';
+ $('#tbl').innerHTML='<div class="tr h"><span>Criterion</span><span>Function</span><span>Measured value</span><span>AI-lean</span><span>Wt</span></div>'+L.map(c=>`<div class="tr"><b>${c.k}</b><code>${c.fn}</code><span>${c.val}</span><u><i data-w="${c.s}"></i></u><span>${c.w}</span></div>`).join('');
+ setTimeout(()=>document.querySelectorAll('.tr i').forEach(i=>i.style.width=i.dataset.w+'%'),120);
+ $('#fe').innerHTML=`<em>POST</em> /api/analyze/${kind}\nContent-Type: multipart/form-data\n\nfile: ${f.name}\nsize: ${f.size} bytes\ntype: ${f.type}`;
+ const J={...R,frames:R.frames?R.frames.map(o=>({at:o.at,p:o.p})):null,criteria:L.map(c=>({name:c.k,fn:c.fn,value:c.val,ai_lean:c.s,weight:c.w}))};delete J.steps;
+ $('#be').textContent=JSON.stringify(J,null,2);
+ $('#nt').innerHTML='Results are probabilistic indications from pretrained neural detectors, not proof. '+(R.level=='Low'?'<b>Confidence is low</b> — try the original, uncompressed file. ':'')+'Screenshots, heavy compression and brand-new generators reduce accuracy.';
+ $('#res').scrollIntoView({behavior:'smooth',block:'start'})}
+// intro split, nav highlight, parallax, magnetic
+(()=>{let i=0;const sp=(n,g)=>{[...n.childNodes].forEach(c=>{if(c.nodeType==3){const f=document.createDocumentFragment();c.textContent.split(/(\s+)/).forEach(w=>{if(!w.trim()){f.append(w);return}const e=document.createElement('span');e.className='w'+(g?' gold':'');e.style.setProperty('--i',i++);e.textContent=w;f.append(e)});c.replaceWith(f)}else sp(c,c.classList&&c.classList.contains('gold')||g)})};const h=$('#hero h1');h.classList.remove('rv');h.style.cssText='opacity:1;filter:none;transform:none';sp(h,false);h.querySelectorAll('.gold:not(.w)').forEach(e=>{e.classList.remove('gold');e.style.fontStyle='italic'})})();
+const so=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on',a.getAttribute('href')=='#'+x.target.id))}}),{threshold:.25});document.querySelectorAll('section.sec').forEach(e=>so.observe(e));
+addEventListener('scroll',()=>{$('#o1').style.transform=`translateY(${scrollY*.12}px)`;$('#o2').style.transform=`translateY(${-scrollY*.08}px)`});
+document.querySelectorAll('.btn').forEach(b=>{b.addEventListener('mousemove',e=>{const r=b.getBoundingClientRect();b.style.transform=`translate(${(e.clientX-r.left-r.width/2)*.2}px,${(e.clientY-r.top-r.height/2)*.3}px)`});b.addEventListener('mouseleave',()=>b.style.transform='')});
+</script></body></html>

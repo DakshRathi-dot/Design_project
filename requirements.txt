@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+python-multipart
+torch
+torchvision
+transformers>=4.49
+timm
+peft
+huggingface_hub
+pillow
+numpy
+opencv-python-headless
+librosa
+soundfile
